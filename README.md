@@ -78,8 +78,12 @@
     - Các vấn đề về khả năng mở rộng ở quy mô rất lớn.
     - Hiệu suất thấp hơn so với lưu trữ khối cho cơ sở dữ liệu
 -  Giống như ổ đĩa mạng được chia sẻ hoặc thư mục Google Drive → bạn sẽ thấy các tệp và thư mục có tên và quyền
-  
-
+  ## Object Storage
+- Dữ liệu được lưu trữ dưới dạng đối tượng trong một cấu trúc phẳng. Mỗi đối tượng bao gồm dữ liệu, siêu dữ liệu và một ID duy nhất (thay vì các thư mục phân cấp).
+- Truy cập thông qua API (REST, S3 API). Được tối ưu hóa để lưu trữ lượng lớn dữ liệu phi cấu trúc (images, videos, backups)
+- Protocols: Amazon S3, OpenStack Swift, MinIO
+- Ưu điểm:
+- Nhược điểm:  
 # Clusion & Links:
 [1] Openstack Installation Guide: https://docs.openstack.org/install-guide/
 [2] Openstack Block Storage (Cinder): https://docs.openstack.org/cinder/latest/
