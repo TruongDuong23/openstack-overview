@@ -46,6 +46,14 @@
 +--------------------------------------------------------------+
 ```
 
+## Conceptual architecture
+
+<img width="983" height="796" alt="Screenshot 2025-08-20 at 23 57 08" src="https://github.com/user-attachments/assets/d93e6ec6-db0b-4dea-969b-fde9826b16cd" />
+
+## Logical architecture
+
+<img width="986" height="477" alt="Screenshot 2025-08-21 at 00 02 38" src="https://github.com/user-attachments/assets/26fbfd7f-5e42-4709-a9a5-a86d1c6c08f5" />
+
 # Block Storage, File Storage and Object Storage
 ## Block Storage
 - Dữ liệu được lưu trữ trong các khối có kích thước cố định (vd: 2MB, 4GB). Mỗi khối có địa chỉ riêng nhưng không có metadata.
@@ -71,6 +79,13 @@
     - Hiệu suất thấp hơn so với lưu trữ khối cho cơ sở dữ liệu
 -  Giống như ổ đĩa mạng được chia sẻ hoặc thư mục Google Drive → bạn sẽ thấy các tệp và thư mục có tên và quyền
   
+
+# Clusion & Links:
+[1] Openstack Installation Guide: https://docs.openstack.org/install-guide/
+[2] Openstack Block Storage (Cinder): https://docs.openstack.org/cinder/latest/
+[3] Openstack Cinder Github: https://github.com/openstack/cinder
+
+
 
 
 
