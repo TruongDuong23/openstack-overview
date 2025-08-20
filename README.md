@@ -46,7 +46,31 @@
 +--------------------------------------------------------------+
 ```
 
-# 
+# Block Storage, File Storage and Object Storage
+## Block Storage
+- Dữ liệu được lưu trữ trong các khối có kích thước cố định (vd: 2MB, 4GB). Mỗi khối có địa chỉ riêng nhưng không có metadata.
+- Hệ điều hành hoặc ứng dụng thường quyết định cách sắp xếp các khối thành tệp. Thường được sử dụng cho csdl, máy ảo,...
+- Protocols: fibre channel
+- Ưu điểm:
+    - Hiệu suất cao, độ trễ thấp
+    - Tốt cho dữ liệu có cấu trúc (DBs, VMs)
+- Nhược điểm:
+    - No metadata (raw blocks) --> gây khó khăn việc quản lý và tìm kiếm dữ liệu
+    - Cần hệ thống tập tin (vd: ext4, NTFS, XFS) ở trên để hiểu nó
+- Giống như ổ cứng trống --> có thể phân vùng (partition) và định dạng (format) mong muốn
+## File Storage
+- Dữ liệu được lưu trữ dữ liệu dưới dạng tệp được sắp xếp hierarchy of directorie, giúp người dùng dễ dàng truy xuất, quản lý và tìm kiếm thông tin cần thiết.
+- Sử dụng các giao thức chia sẻ tệp tiêu chuẩn như NFS, SMB/CIFS. Có thể truy cập như một ổ đĩa dùng chung.
+- Protocols: NFS
+- Ưu điểm:
+    - Dễ dàng sử dụng và chia sẻ (mount và browse như 1 thư mục bình thường)
+    - Giàu metadata (permissions, files name,...)
+    - Tốt cho không gian làm việc chung, thư mục gốc, kho lưu trữ nội dung.
+- Nhược điểm:
+    - Các vấn đề về khả năng mở rộng ở quy mô rất lớn.
+    - Hiệu suất thấp hơn so với lưu trữ khối cho cơ sở dữ liệu
+-  Giống như ổ đĩa mạng được chia sẻ hoặc thư mục Google Drive → bạn sẽ thấy các tệp và thư mục có tên và quyền
+  
 
 
 
