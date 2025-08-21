@@ -64,7 +64,7 @@
     - Tốt cho dữ liệu có cấu trúc (DBs, VMs)
 - Nhược điểm:
     - No metadata (raw blocks) --> gây khó khăn việc quản lý và tìm kiếm dữ liệu
-    - Cần hệ thống tập tin (vd: ext4, NTFS, XFS) ở trên để hiểu nó
+    - Cần hệ thống tập tin (vd: ext4, NTFS, XFS) ở trên để hiểu nó (Không hỗ trợ truy cập cục bộ, cần kết nối internet để truy cập dữ liệu.)
 - Giống như ổ cứng trống --> có thể phân vùng (partition) và định dạng (format) mong muốn
 ## File Storage
 - Dữ liệu được lưu trữ dữ liệu dưới dạng tệp được sắp xếp hierarchy of directorie, giúp người dùng dễ dàng truy xuất, quản lý và tìm kiếm thông tin cần thiết.
@@ -72,22 +72,54 @@
 - Protocols: NFS
 - Ưu điểm:
     - Dễ dàng sử dụng và chia sẻ (mount và browse như 1 thư mục bình thường)
-    - Giàu metadata (permissions, files name,...)
-    - Tốt cho không gian làm việc chung, thư mục gốc, kho lưu trữ nội dung.
+    - Giàu metadata -> bảo mật và sao lưu dữ liệu mạnh mẽ (permissions, files name,...)
+    - Khả năng chia sẻ, quyền truy cập dữ liệu dễ dàng giữa người dùng và thiết bị
+    - Chi phí thấp hơn so với triển khai hệ thống lưu trữ riêng
 - Nhược điểm:
-    - Các vấn đề về khả năng mở rộng ở quy mô rất lớn.
-    - Hiệu suất thấp hơn so với lưu trữ khối cho cơ sở dữ liệu
--  Giống như ổ đĩa mạng được chia sẻ hoặc thư mục Google Drive → bạn sẽ thấy các tệp và thư mục có tên và quyền
+    - Khó quản lý và truy xuất với số lượng tệp lớn
+    - Khó làm việc với dữ liệu phi cấu trúc
+    - Chi phí có thể sẽ có phần đắt đỏ với quy mô lớn.
+-  Giống như ổ đĩa mạng được chia sẻ hoặc thư mục Google Drive → bạn sẽ thấy các tệp và thư mục có tên và quyền.
   ## Object Storage
 - Dữ liệu được lưu trữ dưới dạng đối tượng trong một cấu trúc phẳng. Mỗi đối tượng bao gồm dữ liệu, siêu dữ liệu và một ID duy nhất (thay vì các thư mục phân cấp).
 - Truy cập thông qua API (REST, S3 API). Được tối ưu hóa để lưu trữ lượng lớn dữ liệu phi cấu trúc (images, videos, backups)
 - Protocols: Amazon S3, OpenStack Swift, MinIO
 - Ưu điểm:
-- Nhược điểm:  
+    - Có khả năng mở rộng quy mô lớn và hiệu suất cao.
+    - Có khả năng sao lưu, phục hồi dữ liệu tốt và đảm bảo an toàn dữ liệu.
+    - Chi phí thấp hơn so với File Storage và Block Storage, nhất là với nhu cầu lưu trữ một lượng lớn dữ liệu.
+    - Dễ dàng tích hợp, phân phối dữ liệu và quản lý metadata.
+    - Phù hợp cho lưu trữ dữ liệu lớn, phân tán, sao lưu, phục hồi và các ứng dụng đám mây khác.
+- Nhược điểm:
+    - Không phù hợp cho tính toán và truy vấn dữ liệu nhanh, hiệu quả.
+    - Có thể gặp độ trễ cao hơn khi truy cập dữ liệu.
+    - Không thể khóa tệp, phân quyền truy cập hạn chế.
+    - Khó khăn trong di chuyển dữ liệu.
+- Giống như một nhà kho với các hộp được dán nhãn. Mỗi hộp (object) có một mã vạch (ID) và mô tả (metadata) riêng --> Có thể tra cứu đối tượng theo ID hoặc thẻ của nó.
+
+
+# Vocabulary for Cinder concept:
+- Logical Volumes Manager (LVM)
+- iSCSI Qualified Name (IQN): là format định dạng phổ biến cho tên iSCSI, dùng để xác định duy nhất các nút trong mạng iSCSI
+    - Format: iqn.yyyy-mm.domain:identifier
+    - Ex: iqn.2015-10.org.openstack.408ae959bce1
+- NVMe Qualified Name (NQN): là format định dạng phổ biến cho tên NVMe, xác định duy nhất các máy chủ hoặc hệ thống con NVM trong mạng. Có 2 formats:
+    - 1st format: nqn.yyyy-mm.domain:identifier
+      Ex: nqn.2014-08.com.example:nvme:nvm-subsystem-sn-d78432
+    - 2nd format: nqn.2014-08.org.nvmexpress:uuid:identifier
+      Ex: nqn.2014-08.org.nvmexpress:uuid:f81d4fae-7dec-11d0-a765-00a0c91e6bf6
+ 
 # Clusion & Links:
 [1] Openstack Installation Guide: https://docs.openstack.org/install-guide/
+
 [2] Openstack Block Storage (Cinder): https://docs.openstack.org/cinder/latest/
+
 [3] Openstack Cinder Github: https://github.com/openstack/cinder
+
+
+
+
+
 
 
 
