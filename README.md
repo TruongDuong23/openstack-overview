@@ -1,6 +1,19 @@
 # Openstack-overview
 
-**Openstack** là nền tảng điện toán đám mây mã nguồn mở (open-source cloud computing platform) cho phép xây dựng và quản lý các dịch vụ cloud (public cloud and private cloud). Giống như framework của dịch vụ cloud như AWS, GCP, AZURE nhưng mình có thể kiểm soát nó. Nó cung cấp các công cụ để quản lý và cung cấp tài nguyên điện toán, lưu trữ và mạng, giúp các tổ chức xây dựng và triển khai hạ tầng đám mây của riêng mình.
+**Openstack** là nền tảng điện toán đám mây mã nguồn mở (open-source cloud computing platform) cho phép xây dựng và quản lý các dịch vụ cloud (public cloud and private cloud). Giống như framework của dịch vụ cloud như AWS, GCP, AZURE nhưng mình có thể kiểm soát nó. Nó cung cấp các công cụ để quản lý và cung cấp tài nguyên compute, storage và networking, giúp các tổ chức xây dựng và triển khai hạ tầng đám mây của riêng mình.
+
+OpenStack là nó là một tập hợp nhiều phần mềm chứ không phải là một khối phần mềm đơn khối lớn. Nó bao gồm một số phần độc lập được gọi là các dịch vụ OpenStack. Lý do chính dịch vụ của OpenStack nhằm để đơn giản hoá việc thiết kế và triển khai hạ tầng cloud.
+
+
+<img width="600" height="251" alt="image" src="https://github.com/user-attachments/assets/3c3cf973-de26-4411-b75b-035db966f42d" />
+
+
+Administrators và Users có thể truy cập dashboard để khởi tạo máy ảo, cấu hình storage, cấu hình networking hoặc thực hiện bất kỳ thao tác nào mà OpenStack có thể thực hiện thông qua việc có thể gọi APIs.
+
+Có 3 cách để sử dụng Openstack:
+1. Horizon dashboard. (Đây là cách đơn giản nhất, linh hoạt và dễ sử dụng)
+2. CLI
+3. APIs Call
 
 # Component of Openstack
 - **Nova**: Quản lý compute resources (VMs and instance)
@@ -96,6 +109,61 @@
     - Không thể khóa tệp, phân quyền truy cập hạn chế.
     - Khó khăn trong di chuyển dữ liệu.
 - Giống như một nhà kho với các hộp được dán nhãn. Mỗi hộp (object) có một mã vạch (ID) và mô tả (metadata) riêng --> Có thể tra cứu đối tượng theo ID hoặc thẻ của nó.
+
+<img width="1026" height="632" alt="image" src="https://github.com/user-attachments/assets/339bdd08-c77a-4b50-abde-a4a94f9ac1d0" />
+
+
+# Cinder:
+**Cinder** is the block storage service for OpenStack. It's designed to present storage resources to end users that can be consumed by the OpenStack compute project.
+- Persitent block level storage devices for use with compute instances 
+- Block Device Lifecycle Management: create, delete, extend or attach or detach,...
+- One to one relationship between instances and block storage device: After plugging in your new drive, you can format it to NTFS, ext3 or whatever you need.
+- Manages snapshoots
+- Manages volume types: provide block storage or volumes with commodity hardware. If you wonder about what's going on behind the scenes, it's just LVM (Linux volume management) - Glusterfs and Ceph are also popular software based storage solutions.
+- Fully integrated into Nova and Horizon allowing self service
+
+### Volumes
+- Persistent R/W Block storage
+- Attached to instances as secondary storage
+- Can be used as root volume to boot instances
+- Volume lifecycle management
+    - Create, delete, extend volumes
+    - Attach/detach volumes
+- Manages volume management
+
+### Snapshoot
+- A read only copy of a volume
+- Create/delete snapshoots
+- Create a volume out of a snapshot
+
+### Backup
+- Backup is an admin operation
+- Done from CLI
+- Backup stored in Swift: Needs a container
+- Create/Restore backups
+- $ cinder backup-create "volume-id"
+
+### Quotas
+- Quota can be set for operations limits
+- Enforced per project:
+    - Number of volumes
+    - Storage space in GB
+    - Number of snapshots
+ 
+## Cinder Architecture:
+
+<img width="1024" height="738" alt="image" src="https://github.com/user-attachments/assets/1eb0ae5d-4cd3-45e2-ab37-477949e72d4a" />
+
+- Cinder API is a wsgi application that accepts and validates rest based Json or XML requests from clients and routes them to other cinder processes as appropriate over the message bus.
+    - Volume create/delete/list/show
+    - Create from volume, image or snapshot
+    - Snapshot create/delete/list/show
+    - Volume attach/detach
+    - support other operations related to volume types, quotas or backups
+- Cinder volume daemon accepts requests from other cinder processes like the scheduler and serves as the operational container for cinder drivers.
+- 
+
+
 
 
 # Vocabulary for Cinder concept:
