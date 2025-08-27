@@ -180,6 +180,9 @@ Có 3 cách để sử dụng Openstack:
 - Nova does a volume attachment and both services update their databases with the latest status.
 - The important point I want to mention is the fact that the data path is over an iSCSI connection over the network data path and control path are completely different.
 
+<img width="1176" height="891" alt="image" src="https://github.com/user-attachments/assets/879c4fff-289a-4129-989f-0e71260578c4" />
+
+
 ## Managing Cinder from CLI
 - cinder service-list
 - cinder service-disable
