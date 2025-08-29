@@ -134,7 +134,7 @@ Có 3 cách để sử dụng Openstack:
     - support other operations related to volume types, quotas or backups
 - **Cinder-scheduler:** sử dụng plugins có cơ chế filters và weights để lựa chọn backend storage tốt nhất dựa trên các tiêu chí như dung lượng khả dụng, hiệu suất.
     - Key Filters: CapacityFilter (kiểm tra free space), CapabilityFilter ( matches backend capabilities),...
-- **Cinder-volume:** quản lý thiết bị block storage và điều phối tới storage backend. Thực hiện tiến trình như: create, delete, attach, detach,... volumes, snapshots,... bằng cách tương tác với storage backend đã được cấu hình. Cinder-volume service gửi phản hồi các yêu cầu đọc và ghi đến block storage service để duy trì trạng thái.
+- **Cinder-volume:** quản lý thiết bị block storage và điều phối tới storage backend. Thực hiện tiến trình như: create, delete, attach, detach,... volumes, snapshots,... bằng cách tương tác với storage backend đã được cấu hình thông qua giao thức Fibre Channel.
 - **Cinder-backup:** Xử lý quá trình backup và sao lưu của volume. Tạo backups volumes vào hệ thống backup storage (cụ thể là CEPH) và khôi phục chúng khi cần.
 - **Storage Backend Drivers:** gồm backend code cụ thể để giao tiếp với nhiều loại hệ thống storage. Eg: CEPH
     - Có thể chạy nhiều cinder-volume instances, mỗi driver có file cấu hình riêng về settings và storage backend.
@@ -144,26 +144,17 @@ Có 3 cách để sử dụng Openstack:
 ## Cinder Workflow
 
 1. Volume Creation:
-- A user sends a request to create a volume via the Cinder-API (e.g., through Horizon or CLI).
-- The API validates the request and forwards it to the message queue.
-- The Cinder-Scheduler picks up the request, evaluates available backends using filters and weighers, and selects the best backend.
-- The Scheduler sends the request to the Cinder-Volume service running on the chosen backend.
-- Cinder-Volume uses the appropriate storage driver to create the volume and updates the database with the volume’s metadata.
-- The API returns the result to the user.
-
-2. Volume Attachment:
-- When a volume is attached to a VM (via Nova), Cinder-API coordinates with Nova to provide connection details.
-- Cinder-Volume initializes the connection (e.g., iSCSI, Fibre Channel) and exposes the volume to the compute node.
-- Nova attaches the volume to the VM as a block device.
-
-3. Snapshot and Backup:
-- For snapshots, Cinder-Volume creates a point-in-time copy of the volume using the backend’s snapshot capabilities.
-- For backups, Cinder-Backup streams the volume data to the backup storage system (e.g., Swift).
+- Gửi request tạo 1 volume qua Cinder-API (e.g., dùng Horizon hoặc CLI).
+- API xác thực request và truyền nó đến message queue.
+- Cinder-Scheduler nhận request, đánh giá và lựa chọn storage backends tốt nhất bằng cách sử dụng filters và weighers.
+- Scheduler gửi request đến Cinder-Volume service và chạy trên storage backend đã được chọn.
+- Cinder-Volume sử dụng storage driver phù hợp để tạo volume và updates database về metadata của volume.
+- API trả kết quả về user.
 
 
 ** Example of Data and Control Traffic For Cinder
 
-- Cinder mainly interacts with Nova to provide persistent volumes to instances which Nova manages. The way to do that is via interacting through the APIs of each component.
+- Cinder tương tác trực tiếp với Nova để cung cấp persistent block storage volumes, snapshots và backups tới instances nơi mà Nova quản lý bằng cách call API.
 - Let's say an instance requires a volume. This means Nova and Cinder should talk through their rest APIs. After getting their request via its API, cinder builds and returns all of the info needed by Nova to attach the specified volume to the instance.
 - Nova does a volume attachment and both services update their databases with the latest status.
 - The important point I want to mention is the fact that the data path is over an iSCSI connection over the network data path and control path are completely different.
