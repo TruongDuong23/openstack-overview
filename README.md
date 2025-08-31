@@ -161,6 +161,22 @@ Có 3 cách để sử dụng Openstack:
 
 <img width="1176" height="891" alt="image" src="https://github.com/user-attachments/assets/879c4fff-289a-4129-989f-0e71260578c4" />
 
+## Cinder Status
+
+|Status|Mô tả|
+|------|-----|
+|Creating|Volume được tạo ra|
+|Available|Volume ở trạng thái sẵn sàng để attach vào một instane|
+|Attaching|Volume đang được gắn vào một instane|
+|In-use|Volume đã được gắn thành công vào instane|
+|Deleting|Volume đã được xóa thành công|
+|Error|Đã xảy ra lỗi khi tạo Volume|
+|Error deleting|Xảy ra lỗi khi xóa Volume|
+|Backing-up|Volume đang được back up|
+|Restore_backup|Trạng thái đang restore lại trạng thái khi back up|
+|Error_restoring|Có lỗi xảy ra trong quá trình restore|
+|Error_extending|Có lỗi xảy ra khi mở rộng Volume|
+
 
 ## Managing Cinder from CLI
 - cinder service-list
