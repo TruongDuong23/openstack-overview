@@ -152,7 +152,7 @@ Có 3 cách để sử dụng Openstack:
 - API trả kết quả về user.
 
 
-** Example of Data and Control Traffic For Cinder
+## Example of Data and Control Traffic For Cinder / CInder Attach Workflow
 
 - Cinder tương tác trực tiếp với Nova để cung cấp persistent block storage volumes, snapshots và backups tới instances nơi mà Nova quản lý bằng cách call API.
 - Let's say an instance requires a volume. This means Nova and Cinder should talk through their rest APIs. After getting their request via its API, cinder builds and returns all of the info needed by Nova to attach the specified volume to the instance.
