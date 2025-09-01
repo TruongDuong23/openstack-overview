@@ -121,6 +121,18 @@ Có 3 cách để sử dụng Openstack:
 - Quản lý snapshoots và các loại volumes
 - Hoàn toàn tích hợp vào Nova và Horizon
 
+## Một số hình thức lưu trữ trong Openstack
+
+|             |Lưu trữ tạm thời|Block Storage|Object Storage|
+|-------------|----------------|-------------|--------------|
+|Hình thức sử dụng |Dùng để chạy hệ điều hành và scrath space|Thêm một persistent storage vào VM|lưu trữ các VM iamge , disk volume , snapshot VM,....|
+|Hình thức truy cập|Qua một file system|Một Block device có thể là một partition, formated, mounted (giống như là : /dev/vdc)|Thông qua RESTAPI|
+|Có thể truy cập từ|Trong một VM|Trong một VM|Bất kỳ đâu|
+|Quản lý bỏi|NOVA|Cinder|Swift|
+|Những vấn đề tồn tại|VM được kết thúc|Có thể được xóa bởi người dùng|Có thể được xóa bởi user|
+|Kích cỡ được xác định bởi|Người quản trị hệ thống cấu hình cài đặt kích cỡ, tương tự như là Flavors|Dựa theo đặc điểm yêu cầu của người dùng|Số lượng lưu trữ mà máy vật lý hiện có|
+|Ví dụ điển hình|10GB đĩa thứ nhất, 30GB đĩa thứ 2|1TB disk|10s of TBs of dataset storage|
+
 ## Cinder Architecture:
 
 <img width="1384" height="797" alt="image" src="https://github.com/user-attachments/assets/cac9ec96-099d-4723-80eb-a683eb73acbf" />
