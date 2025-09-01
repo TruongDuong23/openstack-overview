@@ -173,6 +173,19 @@ Có 3 cách để sử dụng Openstack:
 
 <img width="1176" height="891" alt="image" src="https://github.com/user-attachments/assets/879c4fff-289a-4129-989f-0e71260578c4" />
 
+<img width="740" height="551" alt="image" src="https://github.com/user-attachments/assets/4fdef1bd-0ee3-4194-a47f-638d2e22f2be" />
+
+- Cinder gọi Cinder qua APi của cinder, truyền thông tin kết nối.
+  - Ví vụ :  Host name, iSCSI initiator name, FC WWPNs
+- Cinder-API chuyển thông điệp đến Cinder-volume.
+- Sau đó trình kiểm tra lỗi đầu vào sẽ làm việc và gọi đến volume driver.
+- Volume Driver sẽ chuẩn bị các yếu tố cần thiết để cho phép kết nối.
+  - Ví dụ : Cho phép máy chủ NOVA có thể truy cập vào Volume.
+- Volume driver trả về thông tin kết nối, được truyền cho NOVA.
+  - Ví dụ : iSCSI iqn and portal, FC WWPN.
+- NOVA tạo kết nối đến storage sử dụng thông tin được trả về.
+- NOVA chuyển volume device/file tới hypervisor.
+
 ## Cinder Status
 
 |Status|Mô tả|
@@ -250,6 +263,19 @@ Có 3 cách để sử dụng Openstack:
       Ex: nqn.2014-08.com.example:nvme:nvm-subsystem-sn-d78432
     - 2nd format: nqn.2014-08.org.nvmexpress:uuid:identifier
       Ex: nqn.2014-08.org.nvmexpress:uuid:f81d4fae-7dec-11d0-a765-00a0c91e6bf6
+- Block Storage:
+    - Block Storage : hay còn được gọi là Volume storage được gắn vào các VMs dưới dạng volumes . Trong OpenStack Cinder là mã phần mềm triển khai block storage.
+Các volumes này là "persistent" có nghĩa là các volume này có thể gán cho 1 instane rồi gỡ bỏ và gán cho instane khác mà vẫn giữ nguyên dữ liệu. Các loại Block 
+Storage cho phép các instane truy cập trực tiếp đến phần cứng storage của thiết bị thật , việc này giúp tăng hiệu suất đọc/ghi I/O  [4]
+    - Các volume có vòng đời phụ thuộc vào thời gian sống của VM.
+    - Tương tự như Amazon Elastic Block Store (EBS)
+- AMQP:
+    - RabbitMQ là một message broker ( message-oriented middleware) sử dụng giao thức AMQP - Advanced Message Queue Protocol (Đây là giao thức phổ biến, thực tế rabbitmq hỗ trợ nhiều giao thức). RabbitMQ được lập trình bằng ngôn ngữ Erlang. RabbitMQ cung cấp cho lập trình viên một phương tiện trung gian để giao tiếp giữa nhiều thành phần trong một hệ thống lớn ( Ví dụ openstack).
+    -  RabbitMQ sẽ nhận message đến từ các thành phần khác nhau trong hệ thống, lưu trữ chúng an toàn trước khi đẩy đến đích.
+- iSCSI:
+    - Trong hệ thống mạng máy tính, iSCSI (viết tắt của internet Small Computer System Interface) dựa trên giao thức mạng internet (IP) để kết nối các cơ sở dữ liệu.
+    - Nói một cách đơn giản nhất, iSCSI sẽ giúp tạo 1 ổ cứng Local trong máy tính của bạn với mọi chức năng y như 1 ổ cứng gắn trong máy tính vậy. Chỉ khác ở chỗ dung 
+lượng thực tế nằm trên NAS và do NAS quản lý. [5]
  
 # Clusion & Links:
 [1] Openstack Installation Guide: https://docs.openstack.org/install-guide/
@@ -257,6 +283,10 @@ Có 3 cách để sử dụng Openstack:
 [2] Openstack Block Storage (Cinder): https://docs.openstack.org/cinder/latest/
 
 [3] Openstack Cinder Github: https://github.com/openstack/cinder
+
+[4] Types of Storage in Openstack: (http://blogit.edu.vn/cac-loai-storage-trong-openstack/)
+
+[5] iSCSI: http://ducquang415.com/view-45717/iscsi-la-gi-gioi-thieu-cach-map-o-cung-nas-thanh-1-o-cung-local/
 
 
 
