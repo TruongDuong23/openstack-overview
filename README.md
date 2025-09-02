@@ -164,7 +164,21 @@ Có 3 cách để sử dụng Openstack:
 - API trả kết quả về user.
 
 
-## Example of Data and Control Traffic For Cinder / CInder Attach Workflow
+## Cinder & Nova Workflow
+
+[](https://github.com/hocchudong/ghichep-OpenStack/blob/master/images/cinder/cinder-nova-workflow.png)<img width="924" height="520" alt="image" src="https://github.com/user-attachments/assets/278eb2a7-d2e1-4448-83d8-6c3ab49fd721" />
+
+1. Client yêu cầu gán volume thông qua Nova REST API (Client có thể sử dụng tiện ích CLI của python-novaclient)
+2. Nova-api thực hiện quá trình xác nhận yêu cầu và thông tin người dùng. Sau khi xác thực, gọi API Cinder để có được thông tin kết nối cho volume được xác định.
+3. Cinder-api thực hiện quá trình xác nhận yêu cầu hợp lệ và thông tin người dùng hợp lệ. Sau khi xác nhận, 1 message sẽ được gửi đến quản lý volume thông qua AMQP.
+4. Cinder-volume tiến hành đọc message từ hàng đợi, gọi Cinder driver tương ứng với volume được gắn vào.
+5. NetApp Cinder driver chuẩn bị Cinder Volume chuẩn bị cho việc gán volume (các bước cụ thể phụ thuộc vào giao thức lưu trữ được sử dụng)
+6. Cinder-volume thực hiện quá gửi thông tin phản hồi đến cinder-api thông qua hàng đợi AMQP.
+7. Cinder-api thực hiện quá trình đọc message phản hồi từ cinder-volume từ hàng đợi; Truyền thông tin kết nối đến RESTful phản hồi tới NOVA
+8. Nova tạo ra kết nối với bộ lưu trữ thông tin được trả về Cinder.
+9. Nova truyền volume device/file tới hypervisor, sau đó gắn volume device/file vào máy ảo client như 1 block device thực thể hoặc ảo hoá (phụ thuộc giao thức lưu trữ)  [6]
+
+## Example of Data and Control Traffic For Cinder / Cinder Attach Workflow
 
 - Cinder tương tác trực tiếp với Nova để cung cấp persistent block storage volumes, snapshots và backups tới instances nơi mà Nova quản lý bằng cách call API.
 - Let's say an instance requires a volume. This means Nova and Cinder should talk through their rest APIs. After getting their request via its API, cinder builds and returns all of the info needed by Nova to attach the specified volume to the instance.
@@ -287,6 +301,8 @@ lượng thực tế nằm trên NAS và do NAS quản lý. [5]
 [4] Types of Storage in Openstack: (http://blogit.edu.vn/cac-loai-storage-trong-openstack/)
 
 [5] iSCSI: http://ducquang415.com/view-45717/iscsi-la-gi-gioi-thieu-cach-map-o-cung-nas-thanh-1-o-cung-local/
+
+[6] Cinder Process: http://netapp.github.io/openstack-deploy-ops-guide/icehouse/content/section_cinder-processes.html
 
 
 
