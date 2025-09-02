@@ -304,6 +304,8 @@ lượng thực tế nằm trên NAS và do NAS quản lý. [5]
 
 [6] Cinder Process: http://netapp.github.io/openstack-deploy-ops-guide/icehouse/content/section_cinder-processes.html
 
+[7] Openstack Summary: https://github.com/hocchudong/ghichep-OpenStack/tree/master
+
 
 
 
