@@ -113,6 +113,9 @@ Có 3 cách để sử dụng Openstack:
 <img width="1026" height="632" alt="image" src="https://github.com/user-attachments/assets/339bdd08-c77a-4b50-abde-a4a94f9ac1d0" />
 
 
+------------------------------------------------------------------------------------------------------------------------
+
+
 # Cinder:
 **Cinder** là 1 module có dịch vụ cung cấp block storage trong OpenStack. Nó được thiết kế để thể hiện tài nguyên lưu trữ đã sử dụng tới người dùng bởi OpenStack compute.
 - Persitent block storage được gắn vào compute instances/VMs. 
@@ -290,6 +293,29 @@ Storage cho phép các instane truy cập trực tiếp đến phần cứng sto
     - Trong hệ thống mạng máy tính, iSCSI (viết tắt của internet Small Computer System Interface) dựa trên giao thức mạng internet (IP) để kết nối các cơ sở dữ liệu.
     - Nói một cách đơn giản nhất, iSCSI sẽ giúp tạo 1 ổ cứng Local trong máy tính của bạn với mọi chức năng y như 1 ổ cứng gắn trong máy tính vậy. Chỉ khác ở chỗ dung 
 lượng thực tế nằm trên NAS và do NAS quản lý. [5]
+
+
+------------------------------------------------------------------------------------------------------------------------------
+
+
+# Neutron [8]
+## Openstack Networking
+- Neutron - code name Openstack Networking là 1 module trong Openstack để quản lý mạng và địa chỉ IP trong 1 Openstack-based cloud. OpenStack Network cung cấp API để người dùng hay các yêu cầu chuyển tới thực thi cấu hình network và xử lý khác. Người dùng có thể định nghĩa các kết nối mạng riêng trong cloud.
+- OpenStack Networking services có thể được tách ra nhiều host để cung cấp khả năng đàn hồi và dự phòng.
+## Các đặc tính của OpenStack Networking
+OpenStack Networking gồm rất nhiều công nghệ trọng datacenter:
+- switching
+- routing
+- load balancing
+- firewall
+- VPN
+## Physical Infrastructure
+Khi thiết kế một network, quan trọng nhất là xác định cách thức cloud sẽ làm việc. Có yêu cầu về việc mở rộng, dự phòng không?
+
+[](https://github.com/TrongTan124/ghichep-OpenStack/blob/master/Images/read-v2-1.png)<img width="1071" height="615" alt="image" src="https://github.com/user-attachments/assets/e5820f0f-f271-42e4-81f4-d6a8e199c25a" />
+
+
+
  
 # Clusion & Links:
 [1] Openstack Installation Guide: https://docs.openstack.org/install-guide/
@@ -306,7 +332,7 @@ lượng thực tế nằm trên NAS và do NAS quản lý. [5]
 
 [7] Openstack Summary: https://github.com/hocchudong/ghichep-OpenStack/tree/master
 
-
+[8] Openstack Neutron: https://github.com/TrongTan124/ghichep-OpenStack/blob/master/neutron/read-Learning-OpenStack-Networking-(Neutron)%2C2nd-Edition.md
 
 
 
