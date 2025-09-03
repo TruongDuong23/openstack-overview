@@ -314,7 +314,46 @@ Khi thiết kế một network, quan trọng nhất là xác định cách thứ
 
 [](https://github.com/TrongTan124/ghichep-OpenStack/blob/master/Images/read-v2-1.png)<img width="1071" height="615" alt="image" src="https://github.com/user-attachments/assets/e5820f0f-f271-42e4-81f4-d6a8e199c25a" />
 
+## Các loại network traffic
+Có ít nhất 4 loại traffic có thể nhìn thấy được:
+- Management
+- API
+- External
+- Guest
+## Basic networking elements in Neutron
+Sử dụng Neutron API, người dùng có thể tạo network với các thành phần:
+- Network
+- Subnet
+- Port
+## Mở rộng chức năng với plugins:
+Có 2 loại plugin trong kiến trúc Neutron
+- Core plugin:
+    - ml2
+- Service plugin:
+    - router
+    - load balancer
+    - firewall
+    - virtual private network
+ 
+## ML2 architecture
+Mô hình ở mức high level cách thức tương tác giữa các thành phần trong Neutron
 
+<img width="844" height="685" alt="image" src="https://github.com/user-attachments/assets/e8e9236d-efec-4bdc-882f-8461caa97e88" />
+
+### Configure the Neutron metadata agent
+- OpenStack cung cấp metadata service để người dùng nhận các thông tin về instance. Các thông tin này được sử dụng để cấu hình hoặc quản lý instance. Metadata gồm nhiều thông tin như: hostname, fixed, floating IP, public keys,...
+- Instance truy cập vào metadata thông qua HTTP tại địa chỉ http://169.254.169.254 trong suốt quá trình khởi động
+
+<img width="910" height="738" alt="image" src="https://github.com/user-attachments/assets/eff2ee43-fa18-4622-86ee-03c38a030eb5" />
+
+1. Instance gửi yêu cầu metadata tới 169.254.169.254 thông qua HTTP khi khởi động
+2. Yêu cầu metadata gửi tới router hoặc DHCP namespace
+3. Metadata proxy service trong namespace gửi yêu cầu tới Neutron metadata thông qua Unix socket
+4. Neutron metadata gửi yêu cầu tới Nova metadata API service
+5. Nova metadata API service phản hồi lại yêu cầu tới Neutron metadata
+6. Neutron metadata gửi trả lại phản hồi tới metadata proxy trong namespace
+7. metadata proxy service gửi trả lại phản hồi tới instance thông qua HTTP
+8. Instance nhận thông tin metadata và tiếp tục khởi động
 
  
 # Clusion & Links:
