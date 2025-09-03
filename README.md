@@ -412,40 +412,35 @@ Trong hình trên, 3 VLAN riêng biệt tương ứng với các subnet. Instanc
 
 ## Port
 
-Trong mô hình Neutron data, một port đại diện cho một switch port trên một logical switch, triển khai trên toàn bộ cloud và chưa thông tin về thiết bị kết nối. **Virtual machine interfaces (VÍ)** 
-và các đối tượng network khác như router và DHCP server interface được ánh xạ tới Neutron port. Các port định nghĩa cả địa chỉ MAC và địa chỉ IP được gán cho thiết bị liên kết với chúng. 
-Mỗi port phải được kết nối với một Neutron network
+Trong mô hình Neutron data, một port đại diện cho một switch port trên một logical switch, triển khai trên toàn bộ cloud và chưa thông tin về thiết bị kết nối. **Virtual machine interfaces (VÍ)** và các đối tượng network khác như router và DHCP server interface được ánh xạ tới Neutron port. Các port định nghĩa cả địa chỉ MAC và địa chỉ IP được gán cho thiết bị liên kết với chúng. Mỗi port phải được kết nối với một Neutron network
 
 Hình sau chỉ ra cách một port gắn với Layer 2 trong mô hình OSI:
 
-![read-port-osi](/Images/read-port-osi.png)
+<img width="868" height="282" alt="image" src="https://github.com/user-attachments/assets/5b56ac75-2f32-4786-b2fa-9d880054f2dd" />
 
 Khi Neutron được cài lần đầu, không có port nào tồn tại trong database. Khi network và subnet được tạo, port có thể được tạo với mỗi DHCP server tương ứng với mô hình logical switch sau:
 
-![read-port-logic](/Images/read-port-logic.png)
+<img width="421" height="293" alt="image" src="https://github.com/user-attachments/assets/aae348f1-80a5-4588-8883-ee455cd625ac" />
 
 Khi một Instance được tạo, một port được tạo với mỗi network interface gắn với instance:
 
-![read-port-vm](/Images/read-port-vm.png)
+<img width="760" height="309" alt="image" src="https://github.com/user-attachments/assets/fd3eb9a6-f1ef-4a39-ad9b-3095a22498fd" />
 
-Một port chỉ có thể được kết nối với một network. Do đó, nếu một instance được kết nối tới nhiều networks, nó sẽ được liên kết với nhiều port. Khi instance và tài nguyên cloud được khởi tạo, 
-logical switch có thể mở rộng tới hàng trăm, hàng nghìn port, xem hình dưới:
+Một port chỉ có thể được kết nối với một network. Do đó, nếu một instance được kết nối tới nhiều networks, nó sẽ được liên kết với nhiều port. Khi instance và tài nguyên cloud được khởi tạo, logical switch có thể mở rộng tới hàng trăm, hàng nghìn port
 
-![read-port-creat](/Images/read-port-creat.png)
+<img width="869" height="345" alt="image" src="https://github.com/user-attachments/assets/cda23620-aaa1-47bc-b114-1f96cc4f5b64" />
 
-Không có giới hạn số port có thể được tạo trong Neutron. Tuy nhiên, tồn tại một quota giới hạn số port cho một tenant có thể tạo. Khi số port Neutron mở rộng, hiệu xuất của Neutron API server 
-và thực thi của mạng trong cloud có thể giảm. Ý tưởng hay nhất là giữa quota tại điểm mà đảm bảo hiệu năng cloud, nhưng quota mặc định và subsequent nên tăng hợp lý.
+Không có giới hạn số port có thể được tạo trong Neutron. Tuy nhiên, tồn tại một quota giới hạn số port cho một tenant có thể tạo. Khi số port Neutron mở rộng, hiệu xuất của Neutron API server và thực thi của mạng trong cloud có thể giảm. Ý tưởng hay nhất là giữa quota tại điểm mà đảm bảo hiệu năng cloud, nhưng quota mặc định và subsequent nên tăng hợp lý.
 
 ----
 
 ## The Neutron workflow
 
-Theo workflow Neutron chuẩn, network phải được tạo đầu tiên, theo đó là subnet và port. Các phần sau mô tả workflow liên quan trong khi khởi động và xóa các instance.
+Theo workflow Neutron chuẩn, network phải được tạo đầu tiên, theo đó là subnet và port.
 
 ### Booting an instance
 
-Trước khi một instance có thể được tạo, nó phải liên kết với một network có subnet phù hợp hoặc một port tạo trước đã liên kết với một network. Luồng xử lý sau chỉ ra các bước liên quan 
-trong khi khởi động một instance và gắn nó vào một network:
+Trước khi một instance có thể được tạo, nó phải liên kết với một network có subnet phù hợp hoặc một port tạo trước đã liên kết với một network. Luồng xử lý sau chỉ ra các bước liên quan trong khi khởi động một instance và gắn nó vào một network:
 
 1. Người dùng tạo một network
 2. Người dùng tạo một subnet và liên kết nó với network
@@ -463,14 +458,13 @@ Neutron agent là dịch vụ trên network và compute node, chịu trách nhi�
 
 Trong Neutron database, mối quan hệ giữa network, subnet và port được nhìn thấy như sau:
 
-![read-port-network-subnet](/Images/read-port-network-subnet.png)
+<img width="868" height="309" alt="image" src="https://github.com/user-attachments/assets/495120b2-1cd4-4a1d-a53c-9d81936a32b5" />
 
 Thông tin này khi được thực thi trên compute node trong phạm vi của network interface ảo, switch hoặc bridge ảo và địa chỉ IP, theo hình sau:
 
-![read-port-interface](/Images/read-port-interface.png)
+<img width="695" height="546" alt="image" src="https://github.com/user-attachments/assets/b33494db-bc7d-4276-9130-98a8e3a66b49" />
 
-Trong ví dụ trên, instance được kết nối tới network bridge trên compute node, bridge cung cấp kết nối từ instance tới physical network. [phần 6 Switching](#phan8) sẽ đi chi tiết về 
-hạ tầng virtual switch được quản lý bởi Neutron. Bây giờ, chỉ cần biết cách thức mô hình dữ liệu được thực thi khi có vài thứ được sử dụng.
+Trong ví dụ trên, instance được kết nối tới network bridge trên compute node, bridge cung cấp kết nối từ instance tới physical network. 
 
 ### Deleting an instance
 
@@ -482,6 +476,8 @@ hạ tầng virtual switch được quản lý bởi Neutron. Bây giờ, chỉ 
 
 Khi instance được xóa, Neutron gỡ tất cả các kết nối virtual network từ compute node liên quan và gỡ thông tin port liên quan từ database.
 
+
+---
  
 # Clusion & Links:
 [1] Openstack Installation Guide: https://docs.openstack.org/install-guide/
