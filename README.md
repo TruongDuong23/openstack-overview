@@ -113,7 +113,7 @@ Có 3 cách để sử dụng Openstack:
 <img width="1026" height="632" alt="image" src="https://github.com/user-attachments/assets/339bdd08-c77a-4b50-abde-a4a94f9ac1d0" />
 
 
-------------------------------------------------------------------------------------------------------------------------
+---
 
 
 # Cinder:
@@ -295,7 +295,7 @@ Storage cho phép các instane truy cập trực tiếp đến phần cứng sto
 lượng thực tế nằm trên NAS và do NAS quản lý. [5]
 
 
-------------------------------------------------------------------------------------------------------------------------------
+---
 
 
 # Neutron [8]
@@ -327,7 +327,7 @@ Sử dụng Neutron API, người dùng có thể tạo network với các thàn
 - Port
 ## Mở rộng chức năng với plugins:
 Có 2 loại plugin trong kiến trúc Neutron
-- Core plugin:
+- Core plugin: chịu trách nhiệm tương thích với logical network API để có thể thực thi bằng L2 agent và IP Address Management (IPAM) chạy trên host.
     - ml2
 - Service plugin:
     - router
@@ -339,6 +339,19 @@ Có 2 loại plugin trong kiến trúc Neutron
 Mô hình ở mức high level cách thức tương tác giữa các thành phần trong Neutron
 
 <img width="844" height="685" alt="image" src="https://github.com/user-attachments/assets/e8e9236d-efec-4bdc-882f-8461caa97e88" />
+
+ML2 plugin dựa vào các loại khác nhau của driver để xác định loại network thực thi và cơ chế để thực thi
+- **Type drivers**: mô tả các loại mạng được hỗ trợ bởi Neutron. Eg: FLAT, VLAN, VXLAN, GRE.
+- **Mechanism drivers**: được sử dụng để thực thi mạng được chỉ ra trong phần mềm
+- **L2 agent**: xây dựng và vận hành hạ tầng mạng ảo
+- **L3 agent**: chịu trách nhiệm xây dựng và vận hành Neutron router cùng các chức năng liên quan
+
+<img width="524" height="574" alt="image" src="https://github.com/user-attachments/assets/da86bf64-b195-4b84-aea5-127fb9f3fa20" />
+
+1. Neutron nhận yêu cầu kết nối máy ảo tới mạng. API server gọi tới ML2 plugin  để xử lý yêu cầu.
+2. ML2 plugin chuyển tiếp yêu cầu tới OVS mechanism driver để tạo message sử dụng thông tin có sẵn trong request. Message được gửi cho OVS agent tương ứng xử lý thông qua quản lý network
+3. OVS agent nhận message và cấu hình trên local virtual switch.
+4. Trong lúc đó, DHCP agent cũng nhận message tương ứng của yêu cầu này và cấu hình DHCP server trên network node. Sau khi xong, virtual machine instance sẽ giao tiếp với DHCP server và nhận địa chỉ IP thông qua dữ liệu mạng.
 
 ### Configure the Neutron metadata agent
 - OpenStack cung cấp metadata service để người dùng nhận các thông tin về instance. Các thông tin này được sử dụng để cấu hình hoặc quản lý instance. Metadata gồm nhiều thông tin như: hostname, fixed, floating IP, public keys,...
@@ -354,6 +367,120 @@ Mô hình ở mức high level cách thức tương tác giữa các thành ph�
 6. Neutron metadata gửi trả lại phản hồi tới metadata proxy trong namespace
 7. metadata proxy service gửi trả lại phản hồi tới instance thông qua HTTP
 8. Instance nhận thông tin metadata và tiếp tục khởi động
+
+----
+
+## Networks
+
+Network là đối tượng trung tâm của Neutron v2.0 API data model và chỉ ra một **Layer 2** segment riêng biệt. Trong hạ tầng truyền thống, máy tính được kết nối tới switch port và nhóm cùng nhau thành **Virtual Local Area Networks (VLANs)** định danh bởi IDs duy nhất. Các máy tính trong một mạng hay VLAN có thể kế nối với nhau và không thể kết nối ra  các VLAN khác khi thiếu router. Hình sau giải thích cách mà network được tách biệt với nhau trong hạ tầng mạng truyền thống.
+
+<img width="868" height="439" alt="image" src="https://github.com/user-attachments/assets/5c78c187-c70e-48ca-ba03-653a3827888a" />
+
+### Network attributes
+
+Bảng sau chỉ ra các thuộc tính cơ bản của network object:
+
+<img width="874" height="437" alt="image" src="https://github.com/user-attachments/assets/776f590e-774c-457d-8498-f4ecab38a5ce" />
+
+Network được liên kết với tenants hoặc project, có thể sử dụng bởi người dùng là thành viên của cùng tenant hay project. Network có thể được chia sẻ với các project khác hay subnet của project sử dụng tính năng **Role Based Access Control (RBAC)** của Neutron.
+
+### Provider attributes
+
+Provider network extension ánh xạ virtual network và physical network bằng cách thêm các thuộc tính mạng như network type, segmentation ID và physical interface. 
+
+<img width="873" height="322" alt="image" src="https://github.com/user-attachments/assets/480d7517-f24e-4450-a121-bee9dfc0de4f" />
+
+Tất cả các network đều có thuộc tính provider. Tuy nhiên, vì thuộc tính provider chỉ rõ cấu hình và ánh xạ mạng cụ thể, chỉ người dùng có admin role có thể chỉ định chúng khi tạo mạng. Người dùng không có admin role có thể tạo network nhưng Neutron server, không phải người dùng, sẽ quyết định loại mạng được tạo và mọi interface hay segmentation ID phù hợp.
+
+==> Provider network chỉ có thể được tạo và quản lý bởi người quản trị OpenStack khi họ yêu cầu hiểu biết cấu hình hạ tầng mạng vật lý để cấu hình switch port phù hợp. Khi provider được tạo, người quản trị phải chỉ định rõ các thuộc tính đối với network. Provider network thường được cấu hình ở flat hoặc vlan, và sử dụng một thiết bị routing bên ngoài cho phép route lưu lượng phù hợp vào hoặc ra khỏi cloud.
+
+    Còn Tenant network, không như provider network, được tạo bởi người dùng và được phân tách với các mạng khác trong cloud. Không cần phải cấu hình hạ tầng vật lý, các tenant kết nối các network qua Neutron router khi kết nối ra ngoài được yêu cầu.
+
+----
+
+## Subnets
+
+Trong mô hình Neutron data, một subnet là một khối địa chỉ IPv4 hoặc IPv6 có thể gán cho máy ảo và tài nguyên mạng khác. Mỗi subnet phải có một subnet mask đại diện bởi một **Classless Inter-Domain Routing (CIDR)** và phải liên kết với một network:
+
+<img width="868" height="275" alt="image" src="https://github.com/user-attachments/assets/6cdc47c9-ef5b-4b5d-b910-0bf92b692224" />
+
+Trong hình trên, 3 VLAN riêng biệt tương ứng với các subnet. Instance và các thiết bị khác không thể gắn vào network khi thiếu subnet cụ thể. Instance kết nối tới một network có thể kết nối với nhau nhưng không thể kết nối tới mạng khác hoặc subnet không sử dụng router.
+
+<img width="867" height="296" alt="image" src="https://github.com/user-attachments/assets/c37fd5bc-c4ac-4869-8cab-ed517b1572ec" />
+
+----
+
+## Port
+
+Trong mô hình Neutron data, một port đại diện cho một switch port trên một logical switch, triển khai trên toàn bộ cloud và chưa thông tin về thiết bị kết nối. **Virtual machine interfaces (VÍ)** 
+và các đối tượng network khác như router và DHCP server interface được ánh xạ tới Neutron port. Các port định nghĩa cả địa chỉ MAC và địa chỉ IP được gán cho thiết bị liên kết với chúng. 
+Mỗi port phải được kết nối với một Neutron network
+
+Hình sau chỉ ra cách một port gắn với Layer 2 trong mô hình OSI:
+
+![read-port-osi](/Images/read-port-osi.png)
+
+Khi Neutron được cài lần đầu, không có port nào tồn tại trong database. Khi network và subnet được tạo, port có thể được tạo với mỗi DHCP server tương ứng với mô hình logical switch sau:
+
+![read-port-logic](/Images/read-port-logic.png)
+
+Khi một Instance được tạo, một port được tạo với mỗi network interface gắn với instance:
+
+![read-port-vm](/Images/read-port-vm.png)
+
+Một port chỉ có thể được kết nối với một network. Do đó, nếu một instance được kết nối tới nhiều networks, nó sẽ được liên kết với nhiều port. Khi instance và tài nguyên cloud được khởi tạo, 
+logical switch có thể mở rộng tới hàng trăm, hàng nghìn port, xem hình dưới:
+
+![read-port-creat](/Images/read-port-creat.png)
+
+Không có giới hạn số port có thể được tạo trong Neutron. Tuy nhiên, tồn tại một quota giới hạn số port cho một tenant có thể tạo. Khi số port Neutron mở rộng, hiệu xuất của Neutron API server 
+và thực thi của mạng trong cloud có thể giảm. Ý tưởng hay nhất là giữa quota tại điểm mà đảm bảo hiệu năng cloud, nhưng quota mặc định và subsequent nên tăng hợp lý.
+
+----
+
+## The Neutron workflow
+
+Theo workflow Neutron chuẩn, network phải được tạo đầu tiên, theo đó là subnet và port. Các phần sau mô tả workflow liên quan trong khi khởi động và xóa các instance.
+
+### Booting an instance
+
+Trước khi một instance có thể được tạo, nó phải liên kết với một network có subnet phù hợp hoặc một port tạo trước đã liên kết với một network. Luồng xử lý sau chỉ ra các bước liên quan 
+trong khi khởi động một instance và gắn nó vào một network:
+
+1. Người dùng tạo một network
+2. Người dùng tạo một subnet và liên kết nó với network
+3. Người dùng khởi động máy ảo và network chỉ định
+4. Nova interface với Neutron tạo một port trên network
+5. Neutron gán một địa chỉ MAC và địa chỉ IP tới port vừa tạo sử dụng các thuộc tính định nghĩa bởi subnet
+6. Nova dựng instance với file XML bằng libvirt, chứa thông tin local network bridge và địa chỉ MAC. Khởi động instance.
+7. Instance gửi một DHCP request trong khi boot, DHCP respond với địa chỉ IP tương ứng tới địa chỉ MAC của instance.
+
+Nếu nhiều network interface được gắn vào một instance, mỗi network interface sẽ liên kết với một Neutron port duy nhất và có thể gửi DHCP request để nhận thông tin mạng tương ứng.
+
+**Làm cách nào mô hình logical được thực thi**
+
+Neutron agent là dịch vụ trên network và compute node, chịu trách nhiệm trao đổi thông tin mô tả bởi network, subnet và port; sử dụng nó để thực thi hạ tầng mạng ảo và thật.
+
+Trong Neutron database, mối quan hệ giữa network, subnet và port được nhìn thấy như sau:
+
+![read-port-network-subnet](/Images/read-port-network-subnet.png)
+
+Thông tin này khi được thực thi trên compute node trong phạm vi của network interface ảo, switch hoặc bridge ảo và địa chỉ IP, theo hình sau:
+
+![read-port-interface](/Images/read-port-interface.png)
+
+Trong ví dụ trên, instance được kết nối tới network bridge trên compute node, bridge cung cấp kết nối từ instance tới physical network. [phần 6 Switching](#phan8) sẽ đi chi tiết về 
+hạ tầng virtual switch được quản lý bởi Neutron. Bây giờ, chỉ cần biết cách thức mô hình dữ liệu được thực thi khi có vài thứ được sử dụng.
+
+### Deleting an instance
+
+Đoạn sau mô tả các bước liên quan khi xóa một instance
+1. Người dùng xóa instance
+2. Nova interface với Neutron xóa port liên kết với instance
+3. Nova xóa dữ liệu instance
+4. Địa chỉ IP và MAC đã cấp phát được trả về cho pool
+
+Khi instance được xóa, Neutron gỡ tất cả các kết nối virtual network từ compute node liên quan và gỡ thông tin port liên quan từ database.
 
  
 # Clusion & Links:
