@@ -241,34 +241,9 @@ Có 3 cách để sử dụng Openstack:
 - sudo mount /dev/vdc /mydisk
 ---> volume has been created and attched to an instances.
 
-### Volumes
-- Persistent R/W Block storage
-- Attached to instances as secondary storage
-- Can be used as root volume to boot instances
-- Volume lifecycle management
-    - Create, delete, extend volumes
-    - Attach/detach volumes
-- Manages volume management
+## Key features of Openstack Cinder:
 
-### Snapshoot
-- A read only copy of a volume
-- Create/delete snapshoots
-- Create a volume out of a snapshot
-
-### Backup
-- Backup is an admin operation
-- Done from CLI
-- Backup stored in Swift: Needs a container
-- Create/Restore backups
-- $ cinder backup-create "volume-id"
-
-### Quotas
-- Quota can be set for operations limits
-- Enforced per project:
-    - Number of volumes
-    - Storage space in GB
-    - Number of snapshots
-
+<img width="881" height="456" alt="Screenshot 2025-09-18 at 19 03 27" src="https://github.com/user-attachments/assets/7ca7108b-1258-410d-84bf-67390e8e14cb" />
 
 # Vocabulary for Cinder concept:
 - Logical Volumes Manager (LVM)
