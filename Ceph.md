@@ -1,6 +1,8 @@
 # Ceph là gì?
 ## Ceph
-**Ceph** là một hệ thống lưu trữ phân tán mã nguồn mở (open-source distributed storage system), cung cấp lưu trữ thống nhất cho (object storage, block storage, file system) với khả năng mở rộng cao, độ tin cậy và tự động hóa. Trong OpenStack – nền tảng đám mây mã nguồn mở quản lý tài nguyên compute, storage và networking – Ceph thường được sử dụng làm backend lưu trữ chính, thay thế cho các giải pháp lưu trữ truyền thống.
+**Ceph** là một hệ thống lưu trữ phân tán mã nguồn mở (open-source distributed storage system), cung cấp lưu trữ thống nhất cho (object storage, block storage, file system) với khả năng mở rộng cao, độ tin cậy và tự động hóa. Nó được thiết kế để chạy trên các nền tảng phần cứng thông thường, với quan điểm thiết kế các hệ thống lưu trữ - mở rộng đến hàng petabyte nhưng với chi phí rẻ, hợp lý.
+
+Trong OpenStack – nền tảng đám mây mã nguồn mở quản lý tài nguyên compute, storage và networking – Ceph thường được sử dụng làm backend lưu trữ chính, thay thế cho các giải pháp lưu trữ truyền thống.
 
 ## Vai trò của Ceph trong các dịch vụ Openstack
 Ceph hỗ trợ ba loại lưu trữ chính, phù hợp với các thành phần cốt lõi của OpenStack:
@@ -100,6 +102,18 @@ Ceph sử dụng thuật toán **CRUSH** để phân phối dữ liệu mà khô
   v  (Trả về ACK/Data)
 [Client]  <-- Phản hồi cuối cùng (thành công/lỗi)
 ```
+
+## Ceph Network
+
+<img width="818" height="363" alt="image" src="https://github.com/user-attachments/assets/8ca43202-c08d-4079-adbf-ef5fdfa10cf6" />
+
+<img width="979" height="656" alt="image" src="https://github.com/user-attachments/assets/26228394-8316-4548-9350-5a1622f10eba" />
+
+## BLuestore vs filestore
+
+
+
+
 
 
 
