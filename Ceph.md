@@ -32,6 +32,53 @@ Tuy nhiên, Ceph thêm lớp trừu tượng cho block storage (không lý tư�
 
 # Ceph Architecture
 
+<img width="693" height="491" alt="image" src="https://github.com/user-attachments/assets/f8b8057d-5fdf-48d0-bef0-ea4dd914e156" />
+
+Ceph bao gồm các thành phần chính sau, hoạt động dựa trên RADOS (Reliable Autonomic Distributed Object Store):
+
+| Thành phần | Vai trò |
+| :--------- | :------ |
+| RADOS | Lớp lưu trữ nền tảng, xử lý phân phối và nhân bản dữ liệu. |
+| Monitor (MON) | Quản lý cluster map (CRUSH map, OSD map), duy trì trạng thái cluster. Thường triển khai số lẻ (3 hoặc 5) để đảm bảo quorum. |
+| Object Storage Daemon (OSD) | Quản lý lưu trữ vật lý (disk), xử lý I/O dữ liệu. Mỗi OSD đại diện cho một disk hoặc phân vùng | 
+| Metadata Server (MDS) | Quản lý metadata cho CephFS (file storage). Không cần cho RBD hoặc RGW. |
+| RADOS Gateway (RGW) | Cung cấp giao diện RESTful (S3/Swift-compatible) cho object storage. |
+| RBD (RADOS Block Device) | Cung cấp block storage cho VM/container, tích hợp với OpenStack/KVM. |
+| CephFS | Cung cấp file system POSIX-compliant cho shared storage. |
+| CRUSH Algorithm | Quy tắc phân phối dữ liệu thông minh, loại bỏ bottleneck và đảm bảo cân bằng tải. |
+
+Cấu trúc tổng quan:
+
+<img width="479" height="632" alt="image" src="https://github.com/user-attachments/assets/64ce0581-c8f0-4eeb-9a32-b37c9b567044" />
+
+- **Client:** Các ứng dụng hoặc hệ thống (như OpenStack, Kubernetes) tương tác với Ceph qua giao diện RBD, RGW hoặc CephFS.
+- **Pool:** Tập hợp logic của các object, chứa các **Placement Group (PG)**. Mỗi pool có thể cấu hình replication hoặc erasure coding.
+- **Placement Group (PG):** Nhóm trung gian để quản lý object, giúp CRUSH phân phối dữ liệu đên OSD.
+- **Cluster Map:** Bản đồ trạng thái cluster (MON, OSD, PG), được client sử dụng để biết dữ liệu nằm ở đâu.
+
+# Ceph Workflow
+Ceph sử dụng thuật toán **CRUSH** để phân phối dữ liệu mà không cần lookup tập trung, giúp tăng hiệu suất và khả năng mở rộng.
+
+1. Client gửi request:
+- Client (VD: OpenStack VM, ứng dụng S3) gửi yêu cầu đọc/ghi đến cluster Ceph thông qua giao diện RBD, RGW hoặc CephFS.
+- Client cần biết cluster map (lấy từ Monitor) và file **ceph.conf**.
+2. Xác định vị trí dữ liệu:
+- Client sử dụng **CRUSH algorithm** để tính toán vị trí dữ liệu:
+  - Dựa trên object ID, pool name và CRUSH map, xác định PG nào sẽ chứa dữ liệu.
+  - PG được ánh xạ tới một tập hợp OSD ( thường 3 OSD cho replication)
+3. Giao tiếp với OSD:
+- Client gửi yêu cầu trực tiếp tới **Primary OSD** (OSD chịu trách nhiệm chính trong PG).
+- Primary OSD phối hợp với các Replica OSD để đảm bảo dữ liệu được ghi đồng bộ (nếu dùng replication).
+4. Xử lý ghi:
+- Primary OSD ghi dữ liệu vào disk của mình và gửi bản sao tới các Replica OSD.
+- Sau khi tất cả OSD xác nhận, Primary OSD trả về ACK cho client
+5, Xử lý đọc:
+- Client yêu cầu đọc từ Primary OSD, OSD trả về dữ liệu trực tiếp.
+- Nếu Primary OSD lỗi, client tự động liên hệ với Replica OSD dựa trên CRUSH map.
+6. Monitor cập nhật trạng thái:
+- Monitor theo dõi trạng thái cluster, cập nhật cluster map khi có thay đổi (OSD thêm/xoá, lỗi node).
+- Client định kỳ lấy cluster map mới để đảm bảo tính chính xác.
+
 
 
 
