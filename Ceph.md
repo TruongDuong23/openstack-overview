@@ -79,7 +79,27 @@ Ceph sử dụng thuật toán **CRUSH** để phân phối dữ liệu mà khô
 - Monitor theo dõi trạng thái cluster, cập nhật cluster map khi có thay đổi (OSD thêm/xoá, lỗi node).
 - Client định kỳ lấy cluster map mới để đảm bảo tính chính xác.
 
-
+```sequence
+[Client] 
+  |
+  v  (Gửi yêu cầu đọc/ghi)
+[Monitor]  <-- Lấy Cluster Map (ceph.conf)
+  |
+  v  (Cập nhật trạng thái cluster)
+[CRUSH Algorithm]  <-- Tính toán PG & OSD dựa trên Object ID
+  |
+  v  (Xác định vị trí)
+[Primary OSD]  <-- Xử lý chính (ghi/đọc dữ liệu)
+  |  
+  +--> [Replica OSD 1]  <-- Phối hợp replicate (cho ghi)
+  |  
+  +--> [Replica OSD 2]  <-- Xác nhận ACK từ replicas
+  |  
+  +--> [Replica OSD N]  <-- (Nếu lỗi Primary, chuyển sang Replica)
+  |
+  v  (Trả về ACK/Data)
+[Client]  <-- Phản hồi cuối cùng (thành công/lỗi)
+```
 
 
 
