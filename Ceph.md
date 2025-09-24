@@ -53,6 +53,7 @@ Cấu trúc tổng quan:
 
 <img width="479" height="632" alt="image" src="https://github.com/user-attachments/assets/64ce0581-c8f0-4eeb-9a32-b37c9b567044" />
 
+
 - **Client:** Các ứng dụng hoặc hệ thống (như OpenStack, Kubernetes) tương tác với Ceph qua giao diện RBD, RGW hoặc CephFS.
 - **Pool:** Tập hợp logic của các object, chứa các **Placement Group (PG)**. Mỗi pool có thể cấu hình replication hoặc erasure coding.
 - **Placement Group (PG):** Nhóm trung gian để quản lý object, giúp CRUSH phân phối dữ liệu đên OSD.
