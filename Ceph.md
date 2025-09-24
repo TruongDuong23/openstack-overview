@@ -111,6 +111,126 @@ Ceph sử dụng thuật toán **CRUSH** để phân phối dữ liệu mà khô
 
 ## BLuestore vs filestore
 
+## Các bước triển khai Ceph lên Openstack
+1. Triển khai cluster Ceph
+2. Tạo các pool trong Ceph cho các dịch vụ OpenStack
+3. Cấu hình các dịch vụ OpenStack sử dụng Ceph làm backend (Cinder, Glance, Nova...)
+4. Kiểm tra hoạt động và validate tích hợp
+5. Tinh chỉnh hiệu suất và giám sát
+
+**Example:**
+1. Cách 1: Dùng Ceph-Ansible (phổ biến, ổn định)
+- Yêu cầu: 1 máy chủ admin, các node Ceph (mon, osd, mgr...)
+- Repo: ceph/ceph-ansible
+
+Ví dụ inventory:
+```bash
+[mons]
+mon1 ansible_host=192.168.1.10
+
+[osds]
+osd1 ansible_host=192.168.1.11
+osd2 ansible_host=192.168.1.12
+
+[mgrs]
+mgr1 ansible_host=192.168.1.10
+```
+
+Lệnh chạy:
+```bash
+ansible-playbook site.yml -i inventory
+```
+
+* Cách 2: Dùng cephadm (Ceph >= Octopus)
+```bash
+cephadm bootstrap --mon-ip 192.168.1.10
+ceph orch host add node1 192.168.1.11
+ceph orch apply osd --all-available-devices
+```
+
+2. Tạo các Ceph Pool cho OpenStack
+```bash
+ceph osd pool create volumes 128
+ceph osd pool create images 128
+ceph osd pool create vms 128
+```
+
+Nếu dùng erasure coding:
+```bash
+ceph osd erasure-code-profile set myprofile k=2 m=1
+ceph osd pool create volumes 128 128 erasure myprofile
+```
+
+3. Tạo keyring cho OpenStack services
+```bash
+ceph auth get-or-create client.glance mon 'allow r' osd 'allow class-read object_prefix rbd_children, allow rwx pool=images'
+ceph auth get-or-create client.cinder mon 'allow r' osd 'allow class-read object_prefix rbd_children, allow rwx pool=volumes'
+ceph auth get-or-create client.nova mon 'allow r' osd 'allow rwx pool=vms, allow rwx pool=volumes'
+```
+
+Sau đó lưu các key vào file trên các node OpenStack:
+```bash
+/etc/ceph/ceph.client.cinder.keyring
+/etc/ceph/ceph.client.glance.keyring
+/etc/ceph/ceph.client.nova.keyring
+```
+
+4. Cấu hình các dịch vụ OpenStack dùng Ceph
+- Glance – lưu image lên Ceph:
+`/etc/glance/glance-api.conf`:
+
+```bash
+[glance_store]
+stores = rbd
+default_store = rbd
+rbd_store_pool = images
+rbd_store_user = glance
+rbd_store_ceph_conf = /etc/ceph/ceph.conf
+```
+
+- Cinder – backend lưu trữ block (volume):
+`/etc/cinder/cinder.conf`:
+
+```bash
+[DEFAULT]
+enabled_backends = ceph
+
+[ceph]
+volume_driver = cinder.volume.drivers.rbd.RBDDriver
+rbd_pool = volumes
+rbd_ceph_conf = /etc/ceph/ceph.conf
+rbd_user = cinder
+backend_host = ceph
+volume_backend_name = ceph
+```
+
+- Nova – boot từ Ceph volume:
+`/etc/nova/nova.conf`:
+
+```bash
+[libvirt]
+images_type = rbd
+images_rbd_pool = vms
+images_rbd_ceph_conf = /etc/ceph/ceph.conf
+rbd_user = nova
+rbd_secret_uuid = <uuid bạn tạo bằng virsh>
+```
+
+Tạo secret cho libvirt:
+```bash
+virsh secret-define --file secret.xml
+virsh secret-set-value --secret <uuid> --base64 $(ceph auth get-key client.nova) --config
+```
+
+### Một số lưu ý khi triển khai thực tế
+
+| Lưu ý      | Chi tiết                                                     |
+| ---------- | ------------------------------------------------------------ |
+| Network    | Ceph nên có mạng riêng (cluster network) để giảm tải         |
+| Disk       | SSD cho journal/wal (nếu dùng BlueStore) cải thiện hiệu năng |
+| Pool       | Tính toán PG số lượng phù hợp để tránh over/under mapping    |
+| Auth       | Sử dụng `cephx` để bảo mật                                   |
+| Monitoring | Cài đặt `ceph dashboard` hoặc dùng Prometheus, Grafana       |
 
 
 
